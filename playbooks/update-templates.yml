@@ -1,0 +1,123 @@
+---
+- name: Update VM Templates
+  hosts: pve
+  tasks:
+
+  # ---------------------------------------------------------------------------
+
+  - name: Include_vars - Include details about templates
+    ansible.builtin.include_vars: ./../vars/vm_templates.yml
+  
+  - name: Include_vars - Include proxmox variables
+    ansible.builtin.include_vars: ./../vars/pve.yml
+  
+  # ---------------------------------------------------------------------------
+
+  - name: Proxmox_kvm - Delete old VM templates
+    community.general.proxmox_kvm:
+      api_user: "{{ pve['api_user'] }}"
+      api_token_id: "{{ pve['api_token_id'] }}"
+      api_token_secret: "{{ pve['api_token_secret'] }}"
+      api_host: "{{ pve['api_host'] }}"
+      node: "{{ pve['node'] }}"
+
+      vmid: "{{ item['vmid'] }}"
+      state: absent
+      force: true
+
+    ignore_errors: true
+    with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
+
+  - name: Proxmox_kvm - Create new VM templates
+    community.general.proxmox_kvm:
+      api_user: "{{ pve['api_user'] }}"
+      api_token_id: "{{ pve['api_token_id'] }}"
+      api_token_secret: "{{ pve['api_token_secret'] }}"
+      api_host: "{{ pve['api_host'] }}"
+      node: "{{ pve['node'] }}"
+      
+      cores: "{{ vm_template['hardware']['cores'] }}"
+      cpu: "{{ vm_template['hardware']['cpu'] }}"
+      memory: "{{ vm_template['hardware']['memory'] }}"
+      net: "{{ vm_template['hardware']['net'] }}"
+      
+      ciuser: "{{ vm_template['cloud_init']['user'] }}"
+      cipassword: "{{ vm_template['cloud_init']['password'] }}"
+      sshkeys: "{{ vm_template['cloud_init']['sshkey'] }}"
+      ipconfig:
+        ipconfig0: 'ip=dhcp'
+      
+      name: "{{ item['name'] }}"
+      vmid: "{{ item['vmid'] }}"
+      state: present
+    with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
+
+  - name: Get_url - Download disk images
+    ansible.builtin.get_url:
+      url: "{{ item['download_url'] }}"
+      dest: "/tmp/{{ item['name'] }}.qcow2"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  - name: Command - Resize disk images
+    ansible.builtin.command: qemu-img resize "/tmp/{{ item['name'] }}.qcow2" "{{ vm_template['hardware']['disk_size'] }}"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  - name: Command - Convert disk images to RAW format
+    ansible.builtin.command: qemu-img convert -f qcow2 -O raw "/tmp/{{ item['name'] }}.qcow2" "/tmp/{{ item['name'] }}.raw"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  - name: Command - Import disk images into Proxmox datastore
+    ansible.builtin.command: "qm importdisk {{ item['vmid'] }} /tmp/{{ item['name'] }}.raw {{ vm_template['hardware']['disk_store'] }}"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  - name: Command - Attach disk to VMs
+    ansible.builtin.command: "qm set {{ item['vmid'] }} --scsihw virtio-scsi-pci --scsi0 {{ vm_template['hardware']['disk_store'] }}:vm-{{ item['vmid'] }}-disk-0"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
+
+  - name: Command - Create cloud-init
+    ansible.builtin.command: "qm set {{ item['vmid'] }} --ide2 {{ vm_template['hardware']['disk_store'] }}:cloudinit"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  - name: Command - Set boot order
+    ansible.builtin.command: "qm set {{ item['vmid'] }} --boot c --bootdisk scsi0"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
+
+  - name: Command - Add serial console
+    ansible.builtin.command: "qm set {{ item['vmid'] }} --serial0 socket --vga serial0"
+    with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
+
+  - name: Proxmox_kvm - Convert VMs to templates
+    community.general.proxmox_kvm:
+      api_user: "{{ pve['api_user'] }}"
+      api_token_id: "{{ pve['api_token_id'] }}"
+      api_token_secret: "{{ pve['api_token_secret'] }}"
+      api_host: "{{ pve['api_host'] }}"
+      node: "{{ pve['node'] }}"
+
+      vmid: "{{ item['vmid'] }}"
+      state: template
+    with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
+
+  - name: File - Remove qcow2 files
+    ansible.builtin.file:
+      path: "/tmp/{{ item['name'] }}.qcow2"
+      state: absent
+    with_items: "{{ vm_template['distros'] }}"
+
+  - name: File - Remove raw files
+    ansible.builtin.file:
+      path: "/tmp/{{ item['name'] }}.raw"
+      state: absent
+    with_items: "{{ vm_template['distros'] }}"

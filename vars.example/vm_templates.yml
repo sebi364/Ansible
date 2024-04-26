@@ -1,0 +1,21 @@
+---
+vm_template:
+  distros:
+    - Debian12:
+      name: Debian12-template
+      download_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
+      vmid: 9000
+      
+  cloud_init:
+    user: ansible
+    password: changeme
+    sshkey: "ssh-rsa ......"
+
+  hardware:
+    cores: 2
+    cpu: host
+    memory: 2048
+    net:
+      net0: "virtio,bridge=vmbr0"
+    disk_size: 20G
+    disk_store: MyStorage
