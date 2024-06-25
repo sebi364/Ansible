@@ -1,7 +1,0 @@
----
-pve:
-  api_user: "myuser@pam"
-  api_token_id: "myuser_token_id"
-  api_token_secret: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-  api_host: 1337.1337.1337.1337
-  node: "mySuperNode"

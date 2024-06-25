@@ -1,0 +1,12 @@
+---
+pve:
+  api_user: "<proxmox_api_user>@pam"
+  api_token_id: "<proxmox_token_id>"
+  api_token_secret: "<proxmox_api_secret>"
+  api_host: <proxmox_server_address>
+  node: "<proxmox_node_name>"
+
+cloud_init:
+  user: <ci_user_for_templates>
+  password: <ci_password_for_templates>
+  sshkey: "<ci_sshkey_for_templates>"

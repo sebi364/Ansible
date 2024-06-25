@@ -1,30 +1,25 @@
---
+---
 vm_template:
   distros:
-    - AlmaLinux9:
-      name: AlmaLinux9-template
+    - AlmaLinux:
+      name: template-alma
       download_url: "https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
       vmid: 9000
 
-    - Debian12:
-      name: Debian12-template
+    - Debian:
+      name: template-debian
       download_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
       vmid: 9001
 
-    - Fedora40:
-      name: Fedora40-template
+    - Fedora:
+      name: template-fedora
       download_url: "https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
       vmid: 9002
 
-    - Ubuntu24:
-      name: Ubuntu24-template
+    - Ubuntu:
+      name: template-ubuntu
       download_url: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
       vmid: 9003
-      
-  cloud_init:
-    user: ansible
-    password: changeme
-    sshkey: "ssh-rsa ......"
 
   hardware:
     cores: 2
@@ -33,4 +28,4 @@ vm_template:
     net:
       net0: "virtio,bridge=vmbr0"
     disk_size: 20G
-    disk_store: MyStorage
+    disk_store: FlashVault

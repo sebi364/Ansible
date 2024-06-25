@@ -8,8 +8,8 @@
   - name: Include_vars - Include details about templates
     ansible.builtin.include_vars: ./../vars/vm_templates.yml
   
-  - name: Include_vars - Include proxmox variables
-    ansible.builtin.include_vars: ./../vars/pve.yml
+  - name: Include_vars - Include environment variables
+    ansible.builtin.include_vars: ./../vars/environment.yml
   
   # ---------------------------------------------------------------------------
 
@@ -43,13 +43,13 @@
       memory: "{{ vm_template['hardware']['memory'] }}"
       net: "{{ vm_template['hardware']['net'] }}"
       
-      ciuser: "{{ vm_template['cloud_init']['user'] }}"
-      cipassword: "{{ vm_template['cloud_init']['password'] }}"
-      sshkeys: "{{ vm_template['cloud_init']['sshkey'] }}"
+      ciuser: "{{ cloud_init['user'] }}"
+      cipassword: "{{ cloud_init['password'] }}"
+      sshkeys: "{{ cloud_init['sshkey'] }}"
       ipconfig:
         ipconfig0: 'ip=dhcp'
       
-      name: "{{ item['name'] }}"
+      name: "template-{{ item['name'] }}"
       vmid: "{{ item['vmid'] }}"
       state: present
     with_items: "{{ vm_template['distros'] }}"
