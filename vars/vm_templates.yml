@@ -2,24 +2,29 @@
 vm_template:
   distros:
     - AlmaLinux:
-      name: template-alma
+      name: alma
       download_url: "https://repo.almalinux.org/almalinux/9/cloud/x86_64/images/AlmaLinux-9-GenericCloud-latest.x86_64.qcow2"
       vmid: 9000
 
     - Debian:
-      name: template-debian
+      name: debian
       download_url: "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
       vmid: 9001
 
     - Fedora:
-      name: template-fedora
+      name: fedora
       download_url: "https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
       vmid: 9002
 
     - Ubuntu:
-      name: template-ubuntu
+      name: ubuntu
       download_url: "https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64-disk-kvm.img"
       vmid: 9003
+
+    - Arch:
+      name: arch
+      download_url: "https://geo.mirror.pkgbuild.com/images/latest/Arch-Linux-x86_64-cloudimg.qcow2"
+      vmid: 9004
 
   hardware:
     cores: 2
