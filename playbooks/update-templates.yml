@@ -109,6 +109,18 @@
     with_items: "{{ vm_template['distros'] }}"
   
   # ---------------------------------------------------------------------------
+  # this isn't very pretty, but the "normal" builtin way seems
+  # to be broken(?), so this should get the job done (for now)
+  # -> https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_kvm_module.html#parameter-vga
+
+  - name: Replace - Edit display type in vm config
+    ansible.builtin.replace:
+      path: "/etc/pve/qemu-server/{{ item['vmid'] }}.conf"
+      regexp: "^vga: serial0$"
+      replace: "vga: {{ vm_template['hardware']['display'] }}"
+    with_items: "{{ vm_template['distros'] }}"
+
+  # ---------------------------------------------------------------------------
 
   - name: File - Remove qcow2 files
     ansible.builtin.file:

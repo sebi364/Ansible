@@ -34,3 +34,4 @@ vm_template:
       net0: "virtio,bridge=vmbr0"
     disk_size: 20G
     disk_store: FlashVault
+    display: "vga"
