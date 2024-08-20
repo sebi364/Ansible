@@ -6,10 +6,10 @@
   # ---------------------------------------------------------------------------
 
   - name: Include_vars - Include details about templates
-    ansible.builtin.include_vars: ./../vars/vm_templates.yml
+    ansible.builtin.include_vars: ./../vars/pve_vm_templates.yml
   
   - name: Include_vars - Include environment variables
-    ansible.builtin.include_vars: ./../vars/environment.yml
+    ansible.builtin.include_vars: ./../vars/env_pve.yml
   
   # ---------------------------------------------------------------------------
 
