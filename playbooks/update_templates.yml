@@ -41,7 +41,6 @@
       cores: "{{ vm_template['hardware']['cores'] }}"
       cpu: "{{ vm_template['hardware']['cpu'] }}"
       memory: "{{ vm_template['hardware']['memory'] }}"
-      vga: "{{ vm_template['hardware']['display'] }}"
       net: "{{ vm_template['hardware']['net'] }}"
       
       ciuser: "{{ cloud_init['user'] }}"
@@ -88,7 +87,13 @@
   - name: Command - Set boot order
     ansible.builtin.command: "qm set {{ item['vmid'] }} --boot c --bootdisk scsi0"
     with_items: "{{ vm_template['distros'] }}"
+  
+  # ---------------------------------------------------------------------------
 
+  - name: Command - Add serial console
+    ansible.builtin.command: "qm set {{ item['vmid'] }} --serial0 socket --vga serial0"
+    with_items: "{{ vm_template['distros'] }}"
+  
   # ---------------------------------------------------------------------------
 
   - name: Proxmox_kvm - Convert VMs to templates
@@ -102,7 +107,7 @@
       vmid: "{{ item['vmid'] }}"
       state: template
     with_items: "{{ vm_template['distros'] }}"
-
+  
   # ---------------------------------------------------------------------------
 
   - name: File - Remove qcow2 files
